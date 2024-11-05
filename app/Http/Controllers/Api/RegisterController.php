@@ -109,6 +109,8 @@ class RegisterController extends BaseController
                     if(Auth::user()->role =="Qbid Negotiator"){
                         // return ' asd';
                         $users = User::with('negotiator_review','negotiator_review.user_info',"sum_negotiator")->find(Auth::user()->id);
+                        $users->device_token = $request->device_token;
+                        $users->save();
                         $avg = Review::where('assign_user_id', $users->id)->avg('rating');
                         $users->total_earning = $users->sum_negotiator()->sum("negotiator_amount");
                         $users->current_month_earning = $users->current_month_earning()->sum("negotiator_amount");

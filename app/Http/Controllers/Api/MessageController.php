@@ -11,9 +11,17 @@ use App\Models\Conversation;
 use App\Models\User;
 use App\Models\Message;
 use Auth;
+use App\Services\FirebaseService;
 
 class MessageController extends BaseController
 {
+    protected $firebaseService;
+
+    public function __construct(FirebaseService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
+    
     public function chat_list()
     {
         // Get the authenticated user's ID
@@ -149,6 +157,11 @@ class MessageController extends BaseController
 
 
         $chat = Conversation::where('user_id',Auth::user()->id)->orwhere('target_id',Auth::user()->id)->first();
+        $user = User::find($request->target_id);
+        $body = Auth::user()->first_name . ' ' . Auth::user()->last_name .' has send message';
+        $title = request()->text;
+        $fcmToken = $user->device_token;
+        $response = $this->firebaseService->sendNotification($fcmToken, $title, $body);
         // print_r($chat);die;
         if(!$chat)
         {

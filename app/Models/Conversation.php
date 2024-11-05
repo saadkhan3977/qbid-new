@@ -26,6 +26,12 @@ class Conversation extends Model
         return $this->hasOne(\App\Models\Message::class,'chat_id','id')->select('id', 'chat_id','text')->orderBy('id','desc');
     }
 
+    public function new_message()
+	{
+		return $this->hasMany(\App\Models\Message::class,'chat_id','id') // Adjust this if your model name is different
+					->where('is_read', 0);
+	}
+
     // public function messages()
     // {
     //     return $this->hasMany(Message::class);

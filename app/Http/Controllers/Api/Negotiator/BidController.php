@@ -77,12 +77,7 @@ class BidController extends BaseController
             $user = Auth::user();
             $expertise = json_decode($user->expertise);
             $quotes = Notification::with('user_info')
-                ->where(function ($query) use ($expertise) {
-                    foreach ($expertise as $skill) {
-                        // dd($skill);
-                        $query->orWhere('service_preference', $skill);
-                    }
-                })
+                ->where('user_id', $user->id)
                 ->orderBy('id','desc')->get();
 
 			return response()->json(['success'=>true,'message'=>'Notification List','notification_info'=>$quotes]);
