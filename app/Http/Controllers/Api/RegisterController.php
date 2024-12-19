@@ -109,8 +109,7 @@ class RegisterController extends BaseController
                     if(Auth::user()->role =="Qbid Negotiator"){
                         // return ' asd';
                         $users = User::with('negotiator_review','negotiator_review.user_info',"sum_negotiator")->find(Auth::user()->id);
-                        $users->device_token = $request->device_token;
-                        $users->save();
+                        
                         $avg = Review::where('assign_user_id', $users->id)->avg('rating');
                         $users->total_earning = $users->sum_negotiator()->sum("negotiator_amount");
                         $users->current_month_earning = $users->current_month_earning()->sum("negotiator_amount");
@@ -119,6 +118,8 @@ class RegisterController extends BaseController
                         $users = Auth::user();
                         $avg = 0;
                     }
+                    $users->device_token = $request->device_token;
+                    $users->save();
                     $token =  $users->createToken('qbidapp_api')->plainTextToken; 
 		            return response()->json(['success'=>true,'message'=>'User Logged In successfully' ,'token'=>$token,'average_rating'=>$avg,'user_info'=>$users]);
                } 

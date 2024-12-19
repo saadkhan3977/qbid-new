@@ -32,7 +32,7 @@ class QuoteController extends Controller
         {
             // $users = User::where('role','Qbid Negotiator')->get(); // Assuming User is your model
             // //$recipientDeviceToken = $recipient->device_token;
-            
+
             // foreach($users as $user)
             // {
             //     $notification = new Notification();
@@ -41,11 +41,11 @@ class QuoteController extends Controller
             //     $notification->recipient_id = $user->id; // Assuming you have a recipient ID
             //     $notification->save();
             // }
-    
+
             // // Send notification via Firebase Cloud Messaging
             // // $factory = (new Factory)->withServiceAccount('/path/to/firebase_credentials.json');
             // // $messaging = $factory->createMessaging();
-            
+
             // // $message = CloudMessage::fromArray([
             // //     'notification' => [
             // //         'title' => $notification->title,
@@ -53,16 +53,16 @@ class QuoteController extends Controller
             // //     ],
             // //     'token' => $recipientDeviceToken, // FCM token of the recipient device
             // // ]);
-            
+
             // // $messaging->send($message);
-            
+
             // return response()->json(['message' => 'Notification sent successfully']);
-            
-            
-            
-            
-            
-            
+
+
+
+
+
+
 
             $user = Quote::with('images','review','review.user_info','bids','bids.user_info')->where('user_id',Auth::user()->id)->orderBy('id','desc')->paginate(10);
 
@@ -71,9 +71,9 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
-    
+
 //     public function member_help_index()
 //     {
 //         try
@@ -86,10 +86,10 @@ class QuoteController extends Controller
 // 		catch(\Eception $e)
 // 		{
 // 			return $this->sendError($e->getMessage());
-// 		} 
+// 		}
 //     }
-    
-    
+
+
 
     public function search(Request $request)
     {
@@ -100,16 +100,16 @@ class QuoteController extends Controller
             $expertiseArray = $request->expertise;
             $levels = $request->level;
             //return $levels;
-			 
+
             if(count($levels) > 0)
             {
-        
+
                // if($levels != [null]){
                     // return $levels;
                     $usersQuery = User::with('user_info','ratings','ratings.user_info')->select(['users.id','users.first_name','users.last_name','users.company_name','users.email', DB::raw('AVG(reviews.rating) as average_rating')])
                     ->join('reviews', 'users.id', '=', 'reviews.assign_user_id')
                     ->groupBy('users.id','users.first_name','users.last_name','users.company_name','users.email');
-				
+
                     $usersQuery->having(function ($query) use ($levels) {
                         foreach ($levels as $level) {
                             if($level == 'bronze'){
@@ -121,7 +121,7 @@ class QuoteController extends Controller
                             if($level == 'gold'){
                             $query->orhavingRaw('AVG(reviews.rating) >= 3.5 AND AVG(reviews.rating) <= 4');
                             }
-                            if($level == 'platinum'){  
+                            if($level == 'platinum'){
                             $query->orhavingRaw('AVG(reviews.rating) >= 4 AND AVG(reviews.rating) <= 5');
                             }
                             else{
@@ -153,7 +153,7 @@ class QuoteController extends Controller
 
             if(count($request->expertise) > 0)
             {
-                
+
                 // return $request->expertise[0];
                 // return 'saad test';
                 foreach($expertiseArray as $expertise) {
@@ -163,7 +163,7 @@ class QuoteController extends Controller
             }
         }
 
-            
+
             $usersQuery->where('role', 'Qbid Negotiator')->orWhere('role','Business Qbidder');
                 $users = $usersQuery->get()->map(function ($user) {
             //        $user['ratings'] = $user->averageRating();
@@ -175,10 +175,10 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
-    
-    public function search_type(Request $request) 
+
+    public function search_type(Request $request)
     {
         try
         {
@@ -198,10 +198,10 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
-    
-    public function negotitator_list(Request $request) 
+
+    public function negotitator_list(Request $request)
     {
         try
         {
@@ -215,14 +215,14 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
 
 
     public function update_status(Request $request,$id)
     {
         try{
-			
+
             $bid = Quote::find($id);
             $user = User::find($bid->negotiator_id);
             $bid->update([
@@ -250,7 +250,7 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
 
     public function ongoing()
@@ -264,27 +264,27 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
-    }   
-	
+		}
+    }
+
 	public function my_bid_list()
     {
         try
         {
 
             $bids = Bid::where('status','pending')->where('user_id',auth()->user()->id)->get()->pluck('quote_id'); // Assuming you have the authenticated user
-			
+
 			$quotes = Quote::with('images','bids','bids.user_info')->whereIn('id', $bids)->get();
-            
-			
+
+
 			return response()->json(['success'=>true,'message'=>'Quote List','quote_info'=>$quotes]);
 		}
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
-	
+
 	public function bid_list()
     {
         try
@@ -294,7 +294,7 @@ class QuoteController extends Controller
             $userQuotes = $user->quotes; // Get the quotes added by the user
             $quoteBids = null;
             $bigs = [];
-            foreach ($userQuotes as $quote) 
+            foreach ($userQuotes as $quote)
             {
                 $bids[] = Bid::with('quote_info')->first();
                 $quoteBids = $quote->bids; // Get bids on this quote
@@ -308,7 +308,7 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
 
     public function bid_update(Request $request,$id)
@@ -322,12 +322,12 @@ class QuoteController extends Controller
             $fullName = Auth::user()->first_name . ' ' . Auth::user()->last_name;
             $user = User::find($bid->user_id);
             $fcmToken = $user->device_token;
-            
-
-            
 
 
-            
+
+
+
+
 			// return date('Y-m-d H:i:s');
             $user = [
                 '_id' => Auth::user()->id,
@@ -368,7 +368,7 @@ class QuoteController extends Controller
                             'status' => 'reject'
                         ]);
                     }
-                    
+
                 }
                 $bid->update([
                     'status' => $request->status
@@ -390,7 +390,7 @@ class QuoteController extends Controller
                     'negotiator_id' => $bid->user_id,
                     'status' => 'onGoing'
                 ]);
-                
+
 
                 // Create chate list for member or negotiator
                 $chat = Conversation::where('user_id',Auth::user()->id)->where('target_id',$bid->user_id)->first();
@@ -431,11 +431,11 @@ class QuoteController extends Controller
                             'text' => 'Congrats! Your bid for the '.$quote->title.' has been accepted',
                             'user' => $user,
                         ]);
-                    
-                        
+
+
                     }
                 }
-                
+
                 $message = [
                     'chat_id' => $chat->id,
                     'target_id' => $bid->user_id,
@@ -444,9 +444,9 @@ class QuoteController extends Controller
                     'user' => $user,
                 ];
 
-                
 
-                
+
+
                 // Broadcast the event
                 broadcast(new MessageSent((object)$message))->toOthers();
 
@@ -456,7 +456,7 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
 
     /**
@@ -467,7 +467,7 @@ class QuoteController extends Controller
     public function create()
     {
         return '';
-        
+
     }
 
     /**
@@ -476,12 +476,12 @@ class QuoteController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-     
+
 //     public function quote_help(Request $request)
 //     {
 //         try
 //         {
-            
+
 //             $data = Quote::create([
 //                 'user_id' => Auth::user()->id,
 //                 'service_preference' => $request->service_preference,
@@ -496,10 +496,10 @@ class QuoteController extends Controller
 // 		catch(\Eception $e)
 // 		{
 // 			return $this->sendError($e->getMessage());
-// 		} 
-        
+// 		}
+
 //     }
-    
+
 //     public function quote_help_list(Request $request)
 //     {
 //         try
@@ -515,7 +515,7 @@ class QuoteController extends Controller
 // //             return User::where('role','Qbid Negotiator')->where('expertise', 'like', "%$service_preference%")->get();
 
 // // 			return response()->json(['success'=>true,'message'=>'Created Successfully']);
-            
+
 //             $user = Auth::user();
 //             $expertise = json_decode($user->expertise);
 //             $quotes = Quote::with('user_info')->where('type', 'help')
@@ -532,14 +532,14 @@ class QuoteController extends Controller
 // 		catch(\Eception $e)
 // 		{
 // 			return $this->sendError($e->getMessage());
-// 		} 
-        
+// 		}
+
 //     }
-    
+
     public function withdraw(Request $request)
     {
         try{
-            
+
             $qhelp = QuoteHelp::find($request->quote_id);
 		  //  $service_preference = $qhelp->service_preference;
 		    $qhelp->delete();
@@ -548,7 +548,7 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
+		}
     }
     public function store(Request $request)
     {
@@ -557,7 +557,7 @@ class QuoteController extends Controller
 			{
 			    $qhelp = QuoteHelp::find($request->quote_help_id);
 			    $service_preference = $qhelp->service_preference;
-			    
+
 			    $qhelp->delete();
 			}
 			else
@@ -581,11 +581,11 @@ class QuoteController extends Controller
                 'type' => 'quote',
             ]);
 
-            
+
 			if ($request->hasFile('images')) {
                 $uploadedFiles = $request->file('images');
                 $profileUrls = [];
-            
+
                 foreach ($uploadedFiles as $file) {
                     $fileName = md5($file->getClientOriginalName() . time()) . "Qbid." . $file->getClientOriginalExtension();
                     $file->move('uploads/quotes/', $fileName);
@@ -604,14 +604,14 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
-        
+		}
+
     }
-    
+
     public function hiring_store(Request $request)
     {
         try{
-			
+
             $data = Quote::create([
                 'user_id' => Auth::user()->id,
                 'negotiator_id' => $request->negotiator_id,
@@ -625,11 +625,11 @@ class QuoteController extends Controller
                 'type' => 'specific',
             ]);
 
-            
+
 			if ($request->hasFile('images')) {
                 $uploadedFiles = $request->file('images');
                 $profileUrls = [];
-            
+
                 foreach ($uploadedFiles as $file) {
                     $fileName = md5($file->getClientOriginalName() . time()) . "Qbid." . $file->getClientOriginalExtension();
                     $file->move('uploads/quotes/', $fileName);
@@ -648,8 +648,8 @@ class QuoteController extends Controller
 		catch(\Eception $e)
 		{
 			return $this->sendError($e->getMessage());
-		} 
-        
+		}
+
     }
 
     /**
@@ -661,7 +661,7 @@ class QuoteController extends Controller
     public function show($id)
     {
         return 'show';
-        
+
     }
 
     /**
@@ -672,7 +672,7 @@ class QuoteController extends Controller
      */
     public function edit($id)
     {
-        //
+        return 'a';
     }
 
     /**
